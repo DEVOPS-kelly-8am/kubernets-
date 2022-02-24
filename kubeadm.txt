@@ -1,0 +1,50 @@
+swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+
+sudo reboot
+sudo apt-get update
+
+sudo apt-get install -y docker.io
+
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+
+
+sudo docker images
+sudo systemctl status docker.service
+sudo systemctl enable docker.service
+
+sudo apt-get install -y apt-transport-https
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+
+
+sudo sed -i "s/cgroup-driver=systemd/cgroup-driver=cgroupfs/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
+
+sudo kubeadm init --pod-network-cidr=192.168.10.0/24
+
+(if any issues:
+First run "kubeadm reset" to undo all of the changes from the first time you ran it.
+
+Then "run systemctl restart kubelet".
+
+Finally, when you run "kubeadm init" you should no longer get the error.)
+
+
+
