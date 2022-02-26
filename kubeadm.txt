@@ -37,13 +37,17 @@ sudo sed -i "s/cgroup-driver=systemd/cgroup-driver=cgroupfs/g" /etc/systemd/syst
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
 
-sudo kubeadm init --pod-network-cidr=192.168.10.0/24
+
+********************************************************************************************
+only on Master node
+******************************************************************
+sudo kubeadm init --pod-network-cidr=192.168.10.0/24 
 
 (if any issues:
 First run "kubeadm reset" to undo all of the changes from the first time you ran it.
 
 Then "run systemctl restart kubelet".
-
+***********************************************************************************************
 Finally, when you run "kubeadm init" you should no longer get the error.)
 
 
