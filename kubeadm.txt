@@ -2,6 +2,7 @@ swapoff -a
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
 
 sudo reboot
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
 sudo apt-get update
 
 sudo apt-get install -y docker.io
@@ -17,7 +18,9 @@ cat <<EOF | sudo tee /etc/docker/daemon.json
 }
 EOF
 
-
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl restart kubelet
 
 sudo docker images
 sudo systemctl status docker.service
@@ -48,3 +51,6 @@ Finally, when you run "kubeadm init" you should no longer get the error.)
 
 
 
+
+to add label 
+kubectl label node ip-172-31-11-40 node-role.kubernetes.io/worker=worker
